@@ -55,7 +55,7 @@ export default function Episode({episode}: EpisodeProps){
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
-    fallback: 'blocking'
+    fallback: 'blocking' //melhor opção para SEO, o conteúdo é carregado na camada de node.js - a página só é carregada quando acessadas - incremental static regeneration
   }
 }
 
