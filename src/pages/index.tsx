@@ -3,11 +3,13 @@ import Link from 'next/link'; //torna o carregamento mais performático
 import Image from 'next/image'; //componente do next que posso utilizar no lugar das tags img - util para imagens que precisam de otimização - vetor não precisa por ser leve
 import {format, parseISO} from 'date-fns'; //parseISO vai converter para o Date do JS
 import ptBR from 'date-fns/locale/pt-BR';
+
+import {usePlayer } from "../contexts/PlayerContext";
 import { api } from "../services/api";
 import { convertDurationToTimeString } from "../utils/convertDuration";
+
 import styles from './home.module.scss';
-import { useContext } from "react";
-import { PlayerContext } from "../contexts/PlayerContext";
+
 
 //tipagem das props - pode ser type ou interface
 type Episode = { //separado fica mais didático e de fácil entendimento
@@ -26,14 +28,16 @@ type HomeProps = {
   allEpisodes: Episode[];
 }
 
-export default function Home({latestEpisodes, allEpisodes}) {
-  const {play} = useContext(PlayerContext)
+export default function Home({latestEpisodes, allEpisodes}: HomeProps) {
+  const {playList} = usePlayer();
+
+  const episodeList = [ ...latestEpisodes, ...allEpisodes];
   return (
     <div className={styles.homepage}>
     <section className={styles.latestEpisodes}>
       <h2>Últimos lançamentos</h2>
       <ul>
-        {latestEpisodes.map(episode => {
+        {latestEpisodes.map((episode, index) => {
           return (
             <li key={episode.id}>
               <Image width={170} height={170} src={episode.thumbnail} alt={episode.title} objectFit="cover" />
@@ -45,7 +49,7 @@ export default function Home({latestEpisodes, allEpisodes}) {
                 <span>{episode.publishedAt}</span>
                 <span>{episode.durationAsString}</span>
               </div>
-              <button type="button" onClick={() => play(episode)}>
+              <button type="button" onClick={() => playList(episodeList, index)}>
                 <img src="/play-darkpink.svg" alt="Tocar episódio"/>
               </button>
             </li>
@@ -67,7 +71,7 @@ export default function Home({latestEpisodes, allEpisodes}) {
             </tr>
           </thead>
           <tbody>
-            {allEpisodes.map(episode => {
+            {allEpisodes.map((episode, index) => {
               return (
                 <tr key={episode.id}>
                   <td style={{ width: 72}}>
@@ -82,7 +86,7 @@ export default function Home({latestEpisodes, allEpisodes}) {
                   <td style={{ width: 100}}>{episode.publishedAt}</td>
                   <td>{episode.durationAsString}</td>
                   <td>
-                    <button type="button">
+                    <button type="button" onClick={() => playList(episodeList, index + latestEpisodes.length)}>
                       <img src="/play-darkpink.svg" alt="Tocar agora"/>
                     </button>
                   </td>
